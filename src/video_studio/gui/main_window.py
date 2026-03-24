@@ -45,6 +45,7 @@ from video_studio.gui.dialogs.insert_menu import show_insert_menu
 from video_studio.gui.dialogs.speed_dialog import SpeedDialog
 from video_studio.gui.dialogs.subtitle_dialog import SubtitleDialog
 from video_studio.gui.render_dialog import RenderDialog
+from video_studio.gui.theme import COLORS
 from video_studio.gui.timeline_widget import CutTimeline, InsertTimeline
 from video_studio.gui.undo_redo import Action, UndoRedoStack
 from video_studio.gui.video_player import VideoPlayer
@@ -121,15 +122,22 @@ class MainWindow(QMainWindow):
                 padding: 8px 32px; font-size: 13px; font-weight: bold;
                 border: none; border-bottom: 3px solid {border};
                 background: {bg}; color: {fg};
+                border-radius: 0px;
                 border-top-left-radius: 6px; border-top-right-radius: 6px;
             }}
             QPushButton:hover {{ background: {hover}; }}
         """
         TAB_ACTIVE = TAB_STYLE_BASE.format(
-            border="#4a90d9", bg="#2d3748", fg="#ffffff", hover="#2d3748",
+            border=COLORS["accent"],
+            bg=COLORS["bg_mid"],
+            fg=COLORS["text_bright"],
+            hover=COLORS["bg_mid"],
         )
         TAB_INACTIVE = TAB_STYLE_BASE.format(
-            border="transparent", bg="#1a1a2e", fg="#888888", hover="#252540",
+            border="transparent",
+            bg=COLORS["bg_darkest"],
+            fg=COLORS["text_dim"],
+            hover=COLORS["bg_dark"],
         )
 
         self.btn_tab_edit = QPushButton("編集")
@@ -182,13 +190,15 @@ class MainWindow(QMainWindow):
 
         cut_bar.addSpacing(4)
         self.chk_edit_full = QCheckBox("全体")
-        self.chk_edit_full.setStyleSheet("color: #aaa; font-size: 11px;")
+        self.chk_edit_full.setStyleSheet(
+            f"color: {COLORS['text_dim']}; font-size: 11px;"
+        )
         cut_bar.addWidget(self.chk_edit_full)
 
         cut_bar.addSpacing(8)
 
         self.cut_info = QLabel("動画を開いてください")
-        self.cut_info.setStyleSheet("color: #aaa; font-size: 11px;")
+        self.cut_info.setStyleSheet(f"color: {COLORS['text_dim']}; font-size: 11px;")
         cut_bar.addWidget(self.cut_info)
         cut_bar.addStretch()
 
@@ -223,13 +233,19 @@ class MainWindow(QMainWindow):
 
         INSERT_BTN_STYLE = """
             QPushButton {
-                padding: 4px 12px; font-size: 12px; font-weight: bold;
-                background: #2a4a6b; color: #ddd; border: 1px solid #3a6ea5;
-                border-radius: 4px;
+                padding: 5px 14px; font-size: 12px; font-weight: bold;
+                background: %s; color: %s; border: none;
+                border-radius: 5px;
             }
-            QPushButton:hover { background: #3a6ea5; color: white; }
-            QPushButton:disabled { background: #333; color: #666; border-color: #555; }
-        """
+            QPushButton:hover { background: %s; }
+            QPushButton:disabled { background: %s; color: %s; }
+        """ % (
+            COLORS["accent_dark"],
+            COLORS["text_bright"],
+            COLORS["accent"],
+            COLORS["bg_mid"],
+            COLORS["border_light"],
+        )
 
         self.btn_add_subtitle = QPushButton("+ 字幕")
         self.btn_add_subtitle.setStyleSheet(INSERT_BTN_STYLE)
@@ -253,13 +269,17 @@ class MainWindow(QMainWindow):
 
         ins_bar.addSpacing(4)
         self.chk_insert_full = QCheckBox("全体")
-        self.chk_insert_full.setStyleSheet("color: #aaa; font-size: 11px;")
+        self.chk_insert_full.setStyleSheet(
+            f"color: {COLORS['text_dim']}; font-size: 11px;"
+        )
         ins_bar.addWidget(self.chk_insert_full)
 
         ins_bar.addSpacing(8)
 
         self.insert_info = QLabel("ドラッグで範囲選択 / 全体チェックで尺全体")
-        self.insert_info.setStyleSheet("color: #aaa; font-size: 11px;")
+        self.insert_info.setStyleSheet(
+            f"color: {COLORS['text_dim']}; font-size: 11px;"
+        )
         ins_bar.addWidget(self.insert_info)
         ins_bar.addStretch()
 

@@ -28,6 +28,7 @@ from PySide6.QtWidgets import (
 )
 
 from video_studio.core.project import Annotation, MosaicRegion, Project, SubtitleEntry
+from video_studio.gui.theme import COLORS
 
 
 class VideoDisplay(QWidget):
@@ -410,6 +411,22 @@ class VideoPlayer(QWidget):
 
         self.btn_play = QPushButton("▶")
         self.btn_play.setFixedWidth(40)
+        self.btn_play.setStyleSheet(
+            """
+            QPushButton {
+                background: %s; color: %s; border: 1px solid %s;
+                border-radius: 5px; font-size: 14px;
+            }
+            QPushButton:hover { background: %s; color: white; border-color: %s; }
+            """
+            % (
+                COLORS["bg_mid"],
+                COLORS["text"],
+                COLORS["border"],
+                COLORS["accent"],
+                COLORS["accent"],
+            )
+        )
         self.btn_play.clicked.connect(self._toggle_play)
         controls.addWidget(self.btn_play)
 
@@ -420,11 +437,15 @@ class VideoPlayer(QWidget):
 
         self.lbl_time = QLabel("00:00 / 00:00")
         self.lbl_time.setFixedWidth(120)
+        self.lbl_time.setStyleSheet(
+            f"color: {COLORS['text_dim']}; font-size: 12px; font-family: monospace;"
+        )
         controls.addWidget(self.lbl_time)
 
         # 音量スライダー
         self.lbl_vol = QLabel("🔊")
         self.lbl_vol.setFixedWidth(20)
+        self.lbl_vol.setStyleSheet(f"color: {COLORS['text_dim']};")
         controls.addWidget(self.lbl_vol)
 
         self.vol_slider = QSlider(Qt.Horizontal)

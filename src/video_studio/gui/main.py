@@ -13,6 +13,9 @@ def run():
     app = QApplication(sys.argv)
     app.setApplicationName("Video Studio")
     app.setOrganizationName("VideoStudio")
+    from video_studio.gui.theme import get_stylesheet
+
+    app.setStyleSheet(get_stylesheet())
 
     window = MainWindow()
     window.show()

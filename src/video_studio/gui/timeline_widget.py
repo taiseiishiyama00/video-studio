@@ -17,6 +17,37 @@ from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel
 from video_studio.core.timeline import format_time
 
 
+CUT_BG = QColor(24, 24, 28)
+CUT_RULER_BG = QColor(28, 28, 32)
+CUT_RULER_TEXT = QColor(150, 150, 160)
+CUT_TRACK_BG = QColor(30, 56, 44)
+CUT_REMOVED_BG = QColor(50, 50, 55, 200)
+CUT_REMOVED_HATCH = QColor(80, 80, 90, 150)
+CUT_FAST_BG = QColor(45, 120, 80, 120)
+CUT_SLOW_BG = QColor(50, 70, 140, 120)
+CUT_DEFAULT_SPEED_BG = QColor(0, 180, 216, 120)
+CUT_SELECT_BG = QColor(255, 71, 87, 80)
+CUT_SELECT_BORDER = QColor(255, 71, 87, 220)
+SPEED_SELECT_BG = QColor(0, 180, 216, 80)
+SPEED_SELECT_BORDER = QColor(0, 180, 216, 220)
+TIMELINE_PLAYHEAD = QColor(0, 180, 216)
+
+INSERT_BG = QColor(20, 20, 24)
+INSERT_RULER_BG = QColor(28, 28, 34)
+INSERT_LABEL_TEXT = QColor(170, 170, 180)
+INSERT_TRACK_BG = QColor(28, 28, 32)
+INSERT_DIVIDER = QColor(40, 40, 45)
+INSERT_SELECTION_BG = QColor(0, 180, 216, 50)
+INSERT_SELECTION_BORDER = QColor(0, 180, 216, 200)
+INSERT_TRACK_COLORS = [
+    QColor(0, 119, 182, 180),
+    QColor(255, 165, 2, 160),
+    QColor(168, 85, 247, 160),
+    QColor(239, 68, 68, 160),
+    QColor(0, 180, 216, 160),
+]
+
+
 # ==============================================================================
 # カットモード用タイムライン
 # ==============================================================================
@@ -86,22 +117,22 @@ class CutTimeline(QWidget):
         w = self.width()
         h = self.height()
 
-        painter.fillRect(0, 0, w, h, QColor(35, 35, 35))
+        painter.fillRect(0, 0, w, h, CUT_BG)
 
         # ルーラー
         self._draw_ruler(painter, 0, 0, w, self.RULER_H)
 
         # メイントラック（元動画の全尺）
         ty = self.RULER_H
-        painter.fillRect(0, ty, w, self.TRACK_H, QColor(60, 80, 60))
+        painter.fillRect(0, ty, w, self.TRACK_H, CUT_TRACK_BG)
 
         # カット済み区間をグレーアウト
         for cs, ce in self._cut_regions:
             x1 = int(cs * 1000 / self._duration_ms * w)
             x2 = int(ce * 1000 / self._duration_ms * w)
-            painter.fillRect(x1, ty, x2 - x1, self.TRACK_H, QColor(80, 80, 80, 200))
+            painter.fillRect(x1, ty, x2 - x1, self.TRACK_H, CUT_REMOVED_BG)
             # 斜線パターン
-            painter.setPen(QPen(QColor(120, 120, 120, 150), 1))
+            painter.setPen(QPen(CUT_REMOVED_HATCH, 1))
             step = 8
             for lx in range(x1, x2, step):
                 painter.drawLine(lx, ty, min(lx + self.TRACK_H, x2), ty + self.TRACK_H)
@@ -112,11 +143,11 @@ class CutTimeline(QWidget):
             x2 = int(se * 1000 / self._duration_ms * w)
             # 速度ごとに色を変える
             if speed > 1.0:  # 高速
-                color = QColor(100, 200, 100, 120)
+                color = CUT_FAST_BG
             elif speed < 1.0:  # 低速
-                color = QColor(100, 100, 200, 120)
+                color = CUT_SLOW_BG
             else:
-                color = QColor(100, 150, 150, 120)
+                color = CUT_DEFAULT_SPEED_BG
             painter.fillRect(x1, ty, max(1, x2 - x1), self.TRACK_H, color)
             # ラベル（倍速表示）
             painter.setPen(QPen(QColor(255, 255, 255)))
@@ -133,25 +164,25 @@ class CutTimeline(QWidget):
             sx = int(s / self._duration_ms * w)
             ex = int(e / self._duration_ms * w)
             if self._mode == "cut":
-                color = QColor(255, 80, 80, 80)
-                line_color = QColor(255, 100, 100, 220)
+                color = CUT_SELECT_BG
+                line_color = CUT_SELECT_BORDER
             else:  # speed mode
-                color = QColor(100, 200, 255, 80)
-                line_color = QColor(100, 200, 255, 220)
+                color = SPEED_SELECT_BG
+                line_color = SPEED_SELECT_BORDER
             painter.fillRect(sx, ty, ex - sx, self.TRACK_H, color)
             painter.setPen(QPen(line_color, 2, Qt.DashLine))
             painter.drawRect(sx, ty, ex - sx, self.TRACK_H)
 
         # 再生位置
         px = int(self._position_ms / self._duration_ms * w)
-        painter.setPen(QPen(QColor(255, 255, 255), 2))
+        painter.setPen(QPen(TIMELINE_PLAYHEAD, 2))
         painter.drawLine(px, 0, px, h)
 
         painter.end()
 
     def _draw_ruler(self, painter: QPainter, x0: int, y0: int, w: int, h: int):
-        painter.fillRect(x0, y0, w, h, QColor(45, 45, 45))
-        painter.setPen(QPen(QColor(170, 170, 170)))
+        painter.fillRect(x0, y0, w, h, CUT_RULER_BG)
+        painter.setPen(QPen(CUT_RULER_TEXT))
         dur_sec = self._duration_ms / 1000.0
         if dur_sec <= 0:
             return
@@ -230,13 +261,7 @@ class InsertTimeline(QWidget):
     RULER_H = 24
     TRACK_H = 22
     TRACK_NAMES = ["字幕", "BGM", "モザイク", "強調", "アバター"]
-    TRACK_COLORS = [
-        QColor(100, 150, 255, 160),
-        QColor(255, 180, 50, 160),
-        QColor(200, 100, 200, 160),
-        QColor(255, 100, 100, 160),
-        QColor(100, 220, 220, 160),
-    ]
+    TRACK_COLORS = INSERT_TRACK_COLORS
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -322,7 +347,7 @@ class InsertTimeline(QWidget):
 
         w = self.width()
         h = self.height()
-        painter.fillRect(0, 0, w, h, QColor(30, 30, 30))
+        painter.fillRect(0, 0, w, h, INSERT_BG)
 
         lw = 60  # ラベル幅
         tw = w - lw  # トラック幅
@@ -335,11 +360,11 @@ class InsertTimeline(QWidget):
 
         for i, name in enumerate(self.TRACK_NAMES):
             # ラベル
-            painter.setPen(QPen(QColor(200, 200, 200)))
+            painter.setPen(QPen(INSERT_LABEL_TEXT))
             painter.drawText(QRectF(2, y, lw - 4, self.TRACK_H), Qt.AlignVCenter | Qt.AlignRight, name)
 
             # トラック背景
-            painter.fillRect(lw, y, tw, self.TRACK_H, QColor(45, 45, 45))
+            painter.fillRect(lw, y, tw, self.TRACK_H, INSERT_TRACK_BG)
 
             # アイテム
             color = self.TRACK_COLORS[i]
@@ -356,7 +381,7 @@ class InsertTimeline(QWidget):
                                      Qt.AlignVCenter, label[:20])
                     painter.setFont(font)
 
-            painter.setPen(QPen(QColor(55, 55, 55)))
+            painter.setPen(QPen(INSERT_DIVIDER))
             painter.drawLine(lw, y + self.TRACK_H, w, y + self.TRACK_H)
             y += self.TRACK_H
 
@@ -368,21 +393,21 @@ class InsertTimeline(QWidget):
             ex = lw + int(e / self._post_cut_duration_ms * tw)
             tracks_y = self.RULER_H
             tracks_h = self.TRACK_H * len(self.TRACK_NAMES)
-            painter.fillRect(sx, tracks_y, ex - sx, tracks_h, QColor(100, 200, 255, 50))
-            painter.setPen(QPen(QColor(100, 200, 255, 200), 2, Qt.DashLine))
+            painter.fillRect(sx, tracks_y, ex - sx, tracks_h, INSERT_SELECTION_BG)
+            painter.setPen(QPen(INSERT_SELECTION_BORDER, 2, Qt.DashLine))
             painter.drawRect(sx, tracks_y, ex - sx, tracks_h)
 
         # 再生位置
         if self._post_cut_duration_ms > 0:
             px = lw + int(self._position_ms / self._post_cut_duration_ms * tw)
-            painter.setPen(QPen(QColor(255, 60, 60), 2))
+            painter.setPen(QPen(TIMELINE_PLAYHEAD, 2))
             painter.drawLine(px, 0, px, h)
 
         painter.end()
 
     def _draw_ruler(self, painter: QPainter, x0: int, y0: int, w: int, h: int):
-        painter.fillRect(x0, y0, w, h, QColor(50, 50, 50))
-        painter.setPen(QPen(QColor(170, 170, 170)))
+        painter.fillRect(x0, y0, w, h, INSERT_RULER_BG)
+        painter.setPen(QPen(CUT_RULER_TEXT))
         dur_sec = self._post_cut_duration_ms / 1000.0
         if dur_sec <= 0:
             return

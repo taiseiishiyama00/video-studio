@@ -17,6 +17,7 @@ from PySide6.QtWidgets import (
 
 from video_studio.core.pipeline import RenderPipeline
 from video_studio.core.project import Project
+from video_studio.gui.theme import COLORS
 
 
 class RenderWorker(QThread):
@@ -52,7 +53,9 @@ class RenderDialog(QDialog):
         layout = QVBoxLayout(self)
 
         self.status_label = QLabel("レンダリングを開始しています...")
-        self.status_label.setStyleSheet("font-size: 14px; font-weight: bold;")
+        self.status_label.setStyleSheet(
+            f"font-size: 14px; font-weight: bold; color: {COLORS['text']};"
+        )
         layout.addWidget(self.status_label)
 
         self.progress_bar = QProgressBar()
@@ -61,10 +64,16 @@ class RenderDialog(QDialog):
 
         self.log_text = QTextEdit()
         self.log_text.setReadOnly(True)
-        self.log_text.setStyleSheet("background-color: #1e1e1e; color: #ddd; font-family: monospace;")
+        self.log_text.setStyleSheet(
+            "background-color: %s; color: %s; "
+            "font-family: 'SF Mono', 'Menlo', monospace; "
+            "border: 1px solid %s; border-radius: 4px; padding: 8px;"
+            % (COLORS["bg_darkest"], COLORS["text"], COLORS["border"])
+        )
         layout.addWidget(self.log_text)
 
         self.close_btn = QPushButton("閉じる")
+        self.close_btn.setObjectName("accentBtn")
         self.close_btn.setEnabled(False)
         self.close_btn.clicked.connect(self.accept)
         layout.addWidget(self.close_btn)
@@ -87,13 +96,17 @@ class RenderDialog(QDialog):
     def _on_finished(self, output_path: str):
         self.progress_bar.setValue(100)
         self.status_label.setText("レンダリング完了!")
-        self.status_label.setStyleSheet("font-size: 14px; font-weight: bold; color: #4CAF50;")
+        self.status_label.setStyleSheet(
+            f"font-size: 14px; font-weight: bold; color: {COLORS['success']};"
+        )
         self.log_text.append(f"\n出力: {output_path}")
         self.close_btn.setEnabled(True)
 
     @Slot(str)
     def _on_error(self, error_msg: str):
         self.status_label.setText("エラーが発生しました")
-        self.status_label.setStyleSheet("font-size: 14px; font-weight: bold; color: #EF5350;")
+        self.status_label.setStyleSheet(
+            f"font-size: 14px; font-weight: bold; color: {COLORS['danger']};"
+        )
         self.log_text.append(f"\nエラー: {error_msg}")
         self.close_btn.setEnabled(True)
