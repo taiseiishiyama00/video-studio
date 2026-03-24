@@ -1,0 +1,43 @@
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+dist/
+build/
+*.egg
+.eggs/
+*.so
+
+# Virtual environment
+.venv/
+venv/
+env/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Models (large files)
+models/sadtalker/
+models/yunet/
+models/*.onnx
+models/*.pth
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Project outputs
+output/
+*.mp4
+*.mp3
+*.wav
+*.avi
+*.mkv
+*.webm
+!assets/bgm/*.mp3
+
+# Environment
+.env

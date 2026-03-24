@@ -1,0 +1,45 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "video-studio"
+version = "0.1.0"
+description = "YouTube向け動画編集ツール"
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.9"
+dependencies = [
+    "moviepy>=2.0",
+    "opencv-python>=4.8",
+    "pydub>=0.25",
+    "edge-tts>=6.1",
+    "numpy",
+    "Pillow",
+    "click>=8.0",
+    "PySide6>=6.5",
+]
+
+[project.optional-dependencies]
+avatar = [
+    "torch>=2.0",
+    "torchvision",
+]
+dev = [
+    "pytest>=7.0",
+    "ruff>=0.1",
+    "pyinstaller>=6.0",
+]
+
+[project.scripts]
+video-studio = "video_studio.gui.main:run"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/video_studio"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
