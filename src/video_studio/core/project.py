@@ -19,22 +19,22 @@ class SubtitleEntry:
 
     time: float  # カット後タイムライン上の挿入時点（秒）
     text: str
-    voice: str = "ja-JP-NanamiNeural"
+    voice: str = "ja-JP-KeitaNeural"
     duration: float | None = None  # TTS音声から自動決定、手動設定も可
     tts_volume: int = -6  # TTS音量 (dB)
-    tts_rate: str = "-5%"
-    tts_pitch: str = "+2Hz"
+    tts_rate: str = "-8%"
+    tts_pitch: str = "-2Hz"
 
     @classmethod
     def from_dict(cls, d: dict) -> SubtitleEntry:
         return cls(
             time=parse_time(d["time"]),
             text=d["text"],
-            voice=d.get("voice", "ja-JP-NanamiNeural"),
+            voice=d.get("voice", "ja-JP-KeitaNeural"),
             duration=d.get("duration"),
             tts_volume=d.get("tts_volume", -6),
-            tts_rate=d.get("tts_rate", "-5%"),
-            tts_pitch=d.get("tts_pitch", "+2Hz"),
+            tts_rate=d.get("tts_rate", "-8%"),
+            tts_pitch=d.get("tts_pitch", "-2Hz"),
         )
 
 

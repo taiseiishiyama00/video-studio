@@ -36,8 +36,8 @@ def generate_tts(
     text: str,
     voice: str,
     output_path: str | Path,
-    rate: str = "-5%",
-    pitch: str = "+2Hz",
+    rate: str = "-8%",
+    pitch: str = "-2Hz",
 ) -> float:
     """TTS音声を生成
 

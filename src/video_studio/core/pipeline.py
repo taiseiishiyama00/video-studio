@@ -186,4 +186,6 @@ class RenderPipeline:
     def _step_finalize(self, video: Path, audio: Path, output: Path) -> None:
         """映像と音声を結合して最終出力"""
         output.parent.mkdir(parents=True, exist_ok=True)
+        if output.exists():
+            output.unlink()
         mux_audio_video(video, audio, output)

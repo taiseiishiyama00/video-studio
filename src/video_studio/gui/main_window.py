@@ -564,12 +564,16 @@ class MainWindow(QMainWindow):
 
         # track 1: BGM
         bgm_items = []
+        post_cut_dur_sec = post_cut_dur
         for b in self.project.bgm_track:
             ts = self.insert_timeline.source_to_timeline(b.start)
             te = self.insert_timeline.source_to_timeline(b.end)
-            if ts is not None and te is not None:
-                src = Path(b.source).name if b.source else "(無音)"
-                bgm_items.append((ts, te, src))
+            if ts is None:
+                ts = 0.0
+            if te is None:
+                te = post_cut_dur_sec
+            src = Path(b.source).name if b.source else "(無音)"
+            bgm_items.append((ts, te, src))
         self.insert_timeline.set_track_items(1, bgm_items)
 
         # track 2: モザイク/効果
@@ -615,6 +619,12 @@ class MainWindow(QMainWindow):
                 self.project.avatar = new_avatar
                 self._refresh_insert_timeline()
                 self._refresh_preview()
+                if new_avatar:
+                    self._settings.setValue("avatar/image", new_avatar.image)
+                    self._settings.setValue("avatar/image_mouth_open", new_avatar.image_mouth_open)
+                    self._settings.setValue("avatar/image_blink", new_avatar.image_blink)
+                    self._settings.setValue("avatar/position", new_avatar.position)
+                    self._settings.setValue("avatar/scale", new_avatar.scale)
 
             def undo_fn():
                 self.project.avatar = old_avatar
@@ -983,6 +993,20 @@ class MainWindow(QMainWindow):
     def _save_dir(self, key: str, path: str):
         self._settings.setValue(f"last_dir/{key}", str(Path(path).parent))
 
+    def _restore_avatar_from_settings(self):
+        """QSettingsからアバター設定を復元（プロジェクトにアバターが未設定の場合）"""
+        if self.project and not self.project.avatar:
+            image = self._settings.value("avatar/image", "")
+            if image and Path(image).exists():
+                from video_studio.core.project import AvatarConfig
+                self.project.avatar = AvatarConfig(
+                    image=image,
+                    image_mouth_open=self._settings.value("avatar/image_mouth_open", ""),
+                    image_blink=self._settings.value("avatar/image_blink", ""),
+                    position=self._settings.value("avatar/position", "bottom-right"),
+                    scale=float(self._settings.value("avatar/scale", 0.25)),
+                )
+
     def _open_video(self):
         path, _ = QFileDialog.getOpenFileName(
             self, "動画を開く", self._last_dir("video"),
@@ -1001,6 +1025,7 @@ class MainWindow(QMainWindow):
         try:
             self.project = Project(source=path)
             self.project.timeline.source_duration = self._source_duration
+            self._restore_avatar_from_settings()
             self.video_player.load(path)
             self._on_duration_set(int(self._source_duration * 1000))
 
@@ -1031,6 +1056,7 @@ class MainWindow(QMainWindow):
             self.project = Project.from_json(path)
             self._source_duration = get_duration(self.project.source)
             self.project.timeline.source_duration = self._source_duration
+            self._restore_avatar_from_settings()
             self.video_player.load(self.project.source)
             self._cut_undo.clear()
             self._insert_undo.clear()
