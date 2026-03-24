@@ -59,6 +59,7 @@ class VideoDisplay(QWidget):
         self._avatar_speaking = False  # TTS再生中フラグ
         self._avatar_frame = 0  # アニメーションフレーム
         self._avatar_blink_counter = 0
+        self._playback_active = False  # 再生中フラグ
 
         # リップシンクタイマー（150msごとに口パク切替）
         self._lipsync_timer = QTimer(self)
@@ -140,9 +141,19 @@ class VideoDisplay(QWidget):
         """TTS再生中かどうかをセット（リップシンク制御用）"""
         self._avatar_speaking = speaking
 
+    def set_playback_active(self, active: bool):
+        """再生中かどうかをセット（停止中はアニメーション停止）"""
+        self._playback_active = active
+        if not active:
+            self._avatar_frame = 0
+            self._avatar_blink_counter = 1
+            self.update()
+
     def _on_lipsync_tick(self):
         """150msごとにリップシンクアニメーションを更新"""
         if not self._avatar_rect or not self._avatar_imgs["neutral"]:
+            return
+        if not self._playback_active:
             return
         self._avatar_frame += 1
         # まばたき: 約3秒に1回（20フレームに1回）
@@ -494,6 +505,7 @@ class VideoPlayer(QWidget):
 
     def _on_state_changed(self, state):
         self.btn_play.setText("⏸" if state == QMediaPlayer.PlayingState else "▶")
+        self.display.set_playback_active(state == QMediaPlayer.PlayingState)
 
     def _update_time_label(self, pos_ms: int, dur_ms: int):
         self.lbl_time.setText(f"{self._fmt(pos_ms)} / {self._fmt(dur_ms)}")

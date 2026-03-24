@@ -172,13 +172,13 @@ class RenderPipeline:
         from video_studio.audio.mixer import mix_audio
 
         output = self.work_dir / "mixed_audio.mp3"
-        timeline_duration = self.project.timeline.duration
+        video_duration = get_duration(cut_video)
 
         mix_audio(
             base_video=str(cut_video),
             tts_entries=tts_results,
             bgm_entries=self.project.bgm_track,
-            duration=timeline_duration,
+            duration=video_duration,
             output_path=str(output),
         )
         return output
